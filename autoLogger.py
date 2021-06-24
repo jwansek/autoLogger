@@ -4,10 +4,7 @@ import database
 import sys
 import os
 
-workingdir = sys.argv[1]
-
-CONFIG = configparser.ConfigParser()
-CONFIG.read(os.path.join(workingdir, "autoLogger.conf"))
+os.chdir(sys.argv[1])
 
 def parse_time_offset(theStr):
     theNum = int(theStr[1:-1])
@@ -40,13 +37,14 @@ def parse_line(line):
     
 
 def parse_logfile(path):
-    service = os.path.split(os.path.split(path)[0])[-1]
+    service = os.path.split(path)[-1][:-4]
     with database.Database() as db:
         with open(path, "r") as f:
             for line in f.readlines():
                 try:
                     parsed = parse_line(line.rstrip())
                     db.append_log(service = service, **parsed)
+                    print("Parsed line ", line)
                 except ValueError:
                     append_could_not_parse(line, service)
                     print("Couldn't parse ", line)
@@ -55,5 +53,5 @@ def parse_logfile(path):
             f.write("")
 
 if __name__ == "__main__":
-    for logfile in CONFIG.get("logs", "logfiles").split("\n")[1:]:
-        parse_logfile(logfile)
+    for logfile in os.listdir("logfiles"):
+        parse_logfile(os.path.join("logfiles", logfile))

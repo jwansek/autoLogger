@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+    cron:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        image: jwansek/autologger
+        network_mode: host
+        env_file:
+            - db.env
+        volumes:
+            - ./couldntparse.log:/app/couldntparse.log
+            - /media/TheVault/ubuntu0/edaweb/access.log:/app/logfiles/edaweb.log
+            - /media/TheVault/ubuntu0/nitter/access.log:/app/logfiles/nitter.log
+            - /media/TheVault/ubuntu0/invidious/access.log:/app/logfiles/invidious.log
+        restart: unless-stopped
+        
